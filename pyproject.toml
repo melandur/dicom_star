@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "data-assigner"
+version = "0.1.0"
+description = ""
+authors = ["melandur <account@qunit.ch>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydicom = "^2.4.4"
+loguru = "^0.7.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
