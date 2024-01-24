@@ -6,7 +6,7 @@ import pydicom
 import toml
 from loguru import logger
 
-from dicom_star.core.logic import DicomFilter
+from dicom_star.core.logic import DicomFilter, ValueFilter
 from dicom_star.core.tokens import create_filter_logic, tokenize_filter_string
 
 

@@ -22,7 +22,6 @@ if __name__ == '__main__':
             src_file = os.path.join(src_folder, folder, [file for file in files if file.endswith('.dcm')][0])
 
             da = DicomAnalyzer(src_file)
-            print(da)
             results = da.get_sequence()
 
-            print(results, os.path.basename(src_file))
+            logger.info(f'{results} {os.path.basename(src_file)}')
