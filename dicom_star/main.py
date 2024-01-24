@@ -10,7 +10,7 @@ logger.add(sys.stderr, level='INFO')  # TRACE, DEBUG, INFO, WARNING, ERROR
 
 
 if __name__ == '__main__':
-    src_folder = '/home/melandur/Data/DiffusionPerfusion/diff_perf_mike/AEH_001_1945-20121025-0/1-localizer'
+    src_folder = ''
 
     folders = sorted(os.listdir(src_folder))
     folders = [folder for folder in folders if os.path.isdir(os.path.join(src_folder, folder))]

@@ -15,12 +15,8 @@ git clone https://github.com/melandur/dicom_star.git
 cd dicom_star
 ```
 ```bash
-pip install -r requirements.txt
-```
-```bash
 poetry install
 ```
 ```bash
 python main.py
 ```
-
