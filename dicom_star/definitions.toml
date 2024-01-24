@@ -1,0 +1,23 @@
+# Holds your your sequence definitions
+
+[T1w]
+00080060="MR"       # Modality
+00080008="T1"       # Image Type
+0008103E="T1 Pr"    # Series Description
+00180081="4.0"      # Echo Time
+00180080="8.6"      # Repetition Time
+
+[T2w]
+00080060="MR"       # Modality
+00080008="T2"       # Image Type
+0008103E="T2 Pr"    # Series Description
+00180081="4.0"      # Echo Time
+00180080="8.6"      # Repetition Time
+
+[FLAIR]
+00080060="MR"       # Modality
+00080008="FLAIR"    # Image Type
+0008103E="FLAIR"    # Series Description
+00180081="4.0"      # Echo Time
+00180080="8.6"      # Repetition Time
+

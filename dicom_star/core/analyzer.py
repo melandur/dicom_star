@@ -3,34 +3,49 @@ import json
 import os
 
 import pydicom
+import toml
 from loguru import logger
 
-from data_assigner.logic import DicomFilter, ValueFilter
-from data_assigner.tokens import create_filter_logic, tokenize_filter_string
+from dicom_star.core.logic import DicomFilter
+from dicom_star.core.tokens import create_filter_logic, tokenize_filter_string
 
 
 class DicomAnalyzer:
-    def __init__(self, src: str, sequence_definitions: dict) -> None:
+    def __init__(self, src: str) -> None:
         self.src = src
-        self.sequence_definitions = sequence_definitions
+        self.definitions = None
         self.dicom_tags = None
 
-        self.tags_of_interest = [
+        self._load_definitions()
+        self._read_dicom_tags()
+
+    def __str__(self):
+        """Returns a string representation with only the tags of interest"""
+
+        tags_of_interest = [
             '00080060',  # Modality
             '00080008',  # Image Type
             '0008103E',  # Series Description
             '00180081',  # Echo Time
             '00180024',  # Sequence Name
             '00180080',  # Repetition Time
-        ]
+        ]  # only for fast printing, can be extended with user specific tags
 
-        self._get_dicom_tags()
+        filtered_tags = {k: v for k, v in self.dicom_tags.items() if k in tags_of_interest}
+        return f'{json.dumps(filtered_tags, indent=4)}'
 
-    def __str__(self):
-        intresting_tags = {k: v for k, v in self.dicom_tags.items() if k in self.tags_of_interest}
-        return f'{json.dumps(intresting_tags, indent=4)}'
+    def _load_definitions(self) -> None:
+        """Reads the definitions.toml file and stores the content in self.definitions"""
 
-    def _get_dicom_tags(self) -> None:
+        definitions_file = os.path.join(os.getcwd(), 'definitions.toml')
+        if not os.path.exists(definitions_file):
+            raise FileNotFoundError('definitions.toml not found')
+
+        with open(definitions_file, 'r') as f:
+            definitions = toml.load(f)
+        self.definitions = definitions
+
+    def _read_dicom_tags(self) -> None:
         if not os.path.isfile(self.src):
             raise FileNotFoundError(f'File not found: {self.src}')
 
@@ -52,26 +67,24 @@ class DicomAnalyzer:
                 del dicom_tags[id]
                 continue
 
-            # dicom_tags[id]['vm'] = ds[id].VM
             del dicom_tags[id]['vr']
             dicom_tags[id]['keyword'] = ds[id].keyword
             dicom_tags[id]['name'] = ds[id].name
-            # dicom_tags[id]['id'] = id
 
         self.dicom_tags = dicom_tags
 
     def get_sequence(self) -> dict:
-        """Returns a dict with the results of the sequence definitions"""
+        """Returns a dict with the results of the sequence definitions sorted by match ratio"""
 
         results = {}
-        for sequence_name, sequence_definition in self.sequence_definitions.items():
+        for sequence_name, definitions in self.definitions.items():
             results[sequence_name] = {}
-            results[sequence_name]['total_tags'] = len(sequence_definition.keys())
+            results[sequence_name]['total_tags'] = len(definitions.keys())
             results[sequence_name]['found_tags'] = 0
-            results[sequence_name]['found_tags_ratio'] = 0.0
+            results[sequence_name]['match_ratio'] = 0.0
             results[sequence_name]['found_tag_ids'] = []
 
-            for tag, definition in sequence_definition.items():
+            for tag, definition in definitions.items():
                 tokens = tokenize_filter_string(definition)
                 filter_statement = create_filter_logic(tokens, 'ValueFilter')
 
@@ -84,13 +97,10 @@ class DicomAnalyzer:
                 if dicom_filter.filter(tag_data, eval(filter_statement)):
                     results[sequence_name]['found_tags'] += 1
                     ratio = results[sequence_name]['found_tags'] / results[sequence_name]['total_tags']
-                    results[sequence_name]['found_tags_ratio'] = ratio
+                    results[sequence_name]['match_ratio'] = ratio
                     results[sequence_name]['found_tag_ids'].append(tag)
 
         # sort results by found_tags_ratio
-        results = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['found_tags_ratio'], reverse=True)}
-
-        # as string with ratio
-        results = {k: f'{v["found_tags_ratio"]:.2f}' for k, v in results.items()}
-
+        results = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['match_ratio'], reverse=True)}
+        results = {k: f'{v["match_ratio"]:.2f}' for k, v in results.items()}
         return results

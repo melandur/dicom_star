@@ -31,6 +31,7 @@ class AndSpecification(Specification):
         self.args = args
 
     def is_satisfied(self, item: dict) -> bool:
+        """Check if all specifications are satisfied"""
         return all(spec.is_satisfied(item) for spec in self.args)
 
 
@@ -41,6 +42,7 @@ class OrSpecification(Specification):
         self.args = args
 
     def is_satisfied(self, item: dict) -> bool:
+        """Check if any specification is satisfied"""
         return any(spec.is_satisfied(item) for spec in self.args)
 
 
@@ -51,6 +53,7 @@ class NotSpecification(Specification):
         self.spec = spec
 
     def is_satisfied(self, item: dict) -> bool:
+        """Check if any specification not satisfied"""
         return not self.spec.is_satisfied(item)
 
 
@@ -70,6 +73,7 @@ class ValueFilter(Specification):
         self.args = args
 
     def is_satisfied(self, tag_data: dict) -> bool:
+        """Check if any specification for values is satisfied"""
         tag_values = tag_data['value']
         for arg in self.args:
             for tag_value in tag_values:
@@ -77,8 +81,7 @@ class ValueFilter(Specification):
                     if bool(re.search(arg, str(tag_value))) and re.search(arg, str(tag_value)).group() != '':
                         return True
                 except Exception as e:
-                    logger.warning(f'Error {e}')
-                    logger.warning(f'Error with tag value: {tag_value}')
+                    logger.warning(f'Error in "{tag_value}":  {e}')
                     return False
 
 

@@ -21,7 +21,7 @@ def tokenize_filter_string(text: str) -> t.Optional[list]:
 
     if '~' in text:
         if not bool(re.search(r'(^~)|[&|]~', text)):  # ~ at start and after & or |
-            return ''
+            return None
 
     if '&' in text or '|' in text:
         tokens = re.findall(r'(&|\||[^&|]+)', text)  # not & or | characters at the beginning and end of the string
@@ -32,20 +32,20 @@ def tokenize_filter_string(text: str) -> t.Optional[list]:
 
 
 def create_filter_logic(tokens: list, search_type: str) -> t.Optional[str]:
-    """Create a filter string from a list of tokens"""
+    """Create a filter string from a list of filter tokens"""
 
     if tokens is None:
         return None
 
-    result = ''
+    filter_assembly = ''
     for token in tokens:
         if token == '&' or token == '|':
-            result += f' {token}'
+            filter_assembly += f' {token}'
         elif '~' in token:
-            result += f' ~{search_type}("{token[1:]}")'
+            filter_assembly += f' ~{search_type}("{token[1:]}")'
         else:
-            result += f' {search_type}("{token}")'
+            filter_assembly += f' {search_type}("{token}")'
 
-    if result != '':
-        result = f'({result.lstrip()})'
-    return result
+    if filter_assembly != '':
+        filter_assembly = f'({filter_assembly.lstrip()})'
+    return filter_assembly

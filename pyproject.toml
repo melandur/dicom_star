@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "data-assigner"
+name = "dicom_star"
 version = "0.1.0"
-description = ""
+description = "Dicom* - A DICOM Tag filter tool"
 authors = ["melandur <account@qunit.ch>"]
 readme = "README.md"
 
@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.10"
 pydicom = "^2.4.4"
 loguru = "^0.7.2"
+toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.12.1"
